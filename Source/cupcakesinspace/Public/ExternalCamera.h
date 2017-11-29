@@ -7,22 +7,20 @@
 #include "GameFramework/SpringArmComponent.h"
 #include "Classes/Camera/CameraComponent.h"
 #include "Classes/GameFramework/PlayerController.h"
-#include "SystemCamera.generated.h"
-
+#include "ExternalCamera.generated.h"
 
 UCLASS()
-class CUPCAKESINSPACE_API ASystemCamera : public APawn
+class CUPCAKESINSPACE_API AExternalCamera : public APawn
 {
 	GENERATED_BODY()
 
 public:
 	// Sets default values for this pawn's properties
-	ASystemCamera();
+	AExternalCamera();
 
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
-	UPROPERTY(EditAnywhere)
 	USpringArmComponent* InnerSpringArm;
 	UCameraComponent* SystemCamera;
 
@@ -33,6 +31,8 @@ protected:
 	UPROPERTY(EditAnywhere)
 	float ZoomSpeed;
 
+	UPROPERTY(EditAnywhere)
+	APlayerController* PlayerController;
 	FVector2D CameraInput;
 	float ZoomFactor;
 	float RestingArmLength;

@@ -6,9 +6,9 @@
 	{
 		"MajorVersion": 4,
 		"MinorVersion": 18,
-		"PatchVersion": 0,
-		"Changelist": 3709383,
-		"CompatibleChangelist": 0,
+		"PatchVersion": 1,
+		"Changelist": 3754814,
+		"CompatibleChangelist": 3709383,
 		"IsLicenseeVersion": 0,
 		"IsPromotedBuild": 1,
 		"BranchName": "++UE4+Release-4.18",
@@ -16,15 +16,15 @@
 	},
 	"BuildProducts": [
 		{
-			"Path": "$(ProjectDir)/Binaries/Win64/UE4Editor-cupcakesinspace-5881.dll",
+			"Path": "$(ProjectDir)/Binaries/Win64/UE4Editor-cupcakesinspace-7934.dll",
 			"Type": "DynamicLibrary"
 		},
 		{
-			"Path": "$(ProjectDir)/Binaries/Win64/UE4Editor-cupcakesinspace-5881.pdb",
+			"Path": "$(ProjectDir)/Binaries/Win64/UE4Editor-cupcakesinspace-7934.pdb",
 			"Type": "SymbolFile"
 		},
 		{
-			"Path": "$(ProjectDir)/Intermediate/Build/Win64/UE4Editor/Development/UE4Editor-cupcakesinspace-5881.lib",
+			"Path": "$(ProjectDir)/Intermediate/Build/Win64/UE4Editor/Development/UE4Editor-cupcakesinspace-7934.lib",
 			"Type": "ImportLibrary"
 		},
 		{

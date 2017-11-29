@@ -1,18 +1,21 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-#include "SystemCamera.h"
+#include "ExternalCamera.h"
 
 
 // Sets default values
-ASystemCamera::ASystemCamera()
+AExternalCamera::AExternalCamera()
 {
  	// Set this pawn to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
-	RestingArmLength = 400.0f;
-	MinArmLength = 200.0f;
-	MaxArmLength = 1200.0f;
-	ZoomSpeed = 300.0f;
+	RestingArmLength = 1000.0f;
+	UPROPERTY(EditAnywhere)
+	MinArmLength = 800.0f;
+	UPROPERTY(EditAnywhere)
+	MaxArmLength = 150000.0f;
+	UPROPERTY(EditAnywhere)
+	ZoomSpeed = 100000.0f;
 
 	RootComponent = CreateDefaultSubobject<USceneComponent>(TEXT("RootComponent"));
 	InnerSpringArm = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraSpringArm"));
@@ -31,33 +34,36 @@ ASystemCamera::ASystemCamera()
 }
 
 // Called when the game starts or when spawned
-void ASystemCamera::BeginPlay()
+void AExternalCamera::BeginPlay()
 {
 	Super::BeginPlay();
+	PlayerController = Cast<APlayerController>(GetController());
 }
 
 // Called every frame
-void ASystemCamera::Tick(float DeltaTime)
+void AExternalCamera::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 	if (bRightClick)
 	{
 		if (bLeftClick)
 		{
+			//PlayerController->SetInputMode(FInputModeGameOnly());
 			ZoomFactor = DeltaTime * CameraInput.Y;
 			ZoomFactor = ZoomSpeed * FMath::Clamp<float>(ZoomFactor, -1.0f, 1.0f);
 
 			/*
 			if (ZoomFactor > 0)
 			{
-				SystemCamera->FieldOfView = FMath::Lerp<float>(90.0f, 105.0f, ZoomFactor);
+			SystemCamera->FieldOfView = FMath::Lerp<float>(90.0f, 105.0f, ZoomFactor);
 			}
 			else
 			{
-				SystemCamera->FieldOfView = FMath::Lerp<float>(90.0f, 75.0f, -ZoomFactor);
+			SystemCamera->FieldOfView = FMath::Lerp<float>(90.0f, 75.0f, -ZoomFactor);
 			}
 			*/
 			InnerSpringArm->TargetArmLength = FMath::Clamp<float>(InnerSpringArm->TargetArmLength + ZoomFactor, MinArmLength, MaxArmLength);
+			//PlayerController->SetInputMode(FInputModeGameAndUI());
 		}
 		else
 		{
@@ -75,47 +81,47 @@ void ASystemCamera::Tick(float DeltaTime)
 }
 
 // Called to bind functionality to input
-void ASystemCamera::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
+void AExternalCamera::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
-	PlayerInputComponent->BindAction("LeftClick", IE_Pressed, this, &ASystemCamera::LeftClickDown);
-	PlayerInputComponent->BindAction("LeftClick", IE_Released, this, &ASystemCamera::LeftClickUp);
+	PlayerInputComponent->BindAction("LeftClick", IE_Pressed, this, &AExternalCamera::LeftClickDown);
+	PlayerInputComponent->BindAction("LeftClick", IE_Released, this, &AExternalCamera::LeftClickUp);
 
-	PlayerInputComponent->BindAction("RightClick", IE_Pressed, this, &ASystemCamera::RightClickDown);
-	PlayerInputComponent->BindAction("RightClick", IE_Released, this, &ASystemCamera::RightClickUp);
+	PlayerInputComponent->BindAction("RightClick", IE_Pressed, this, &AExternalCamera::RightClickDown);
+	PlayerInputComponent->BindAction("RightClick", IE_Released, this, &AExternalCamera::RightClickUp);
 
-	PlayerInputComponent->BindAxis("MouseXAxis", this, &ASystemCamera::YawCamera);
-	PlayerInputComponent->BindAxis("MouseYAxis", this, &ASystemCamera::PitchCamera);
+	PlayerInputComponent->BindAxis("MouseXAxis", this, &AExternalCamera::YawCamera);
+	PlayerInputComponent->BindAxis("MouseYAxis", this, &AExternalCamera::PitchCamera);
 }
 
-void ASystemCamera::PitchCamera(float AxisValue)
+void AExternalCamera::PitchCamera(float AxisValue)
 {
 	CameraInput.Y = AxisValue;
 }
 
-void ASystemCamera::YawCamera(float AxisValue)
+void AExternalCamera::YawCamera(float AxisValue)
 {
 	CameraInput.X = AxisValue;
 }
 
-void ASystemCamera::RightClickDown()
+void AExternalCamera::RightClickDown()
 {
 
 	bRightClick = true;
 }
 
-void ASystemCamera::RightClickUp()
+void AExternalCamera::RightClickUp()
 {
 	bRightClick = false;
 }
 
-void ASystemCamera::LeftClickDown()
+void AExternalCamera::LeftClickDown()
 {
 	bLeftClick = true;
 }
 
-void ASystemCamera::LeftClickUp()
+void AExternalCamera::LeftClickUp()
 {
 	bLeftClick = false;
 }
