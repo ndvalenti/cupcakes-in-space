@@ -1,10 +1,10 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-#include "PlanetController.h"
+#include "CelestialController.h"
 
 
 // Sets default values
-APlanetController::APlanetController()
+ACelestialController::ACelestialController()
 {
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
@@ -12,19 +12,20 @@ APlanetController::APlanetController()
 }
 
 // Called when the game starts or when spawned
-void APlanetController::BeginPlay()
+void ACelestialController::BeginPlay()
 {
 	Super::BeginPlay();
 	SetTickGroup(TG_PostUpdateWork);
 	PlanetLocation = GetActorLocation();
+	ExternalCamera = UGameplayStatics::GetPlayerCameraManager(GetWorld(), 0);
 }
 
 // Called every frame
-void APlanetController::Tick(float DeltaTime)
+void ACelestialController::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-	if (Skybox) {
-		SetActorLocation(Skybox->GetActorLocation() + PlanetLocation);
+	if (ExternalCamera) {
+		SetActorLocation(ExternalCamera->GetActorLocation() + PlanetLocation);
 	}
 }
 

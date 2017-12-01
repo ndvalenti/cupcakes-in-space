@@ -22,6 +22,7 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 	USpringArmComponent* InnerSpringArm;
+	UPROPERTY(VisibleAnywhere,BlueprintReadOnly)
 	UCameraComponent* SystemCamera;
 
 	UPROPERTY(EditAnywhere)

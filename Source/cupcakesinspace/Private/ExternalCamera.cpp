@@ -15,7 +15,7 @@ AExternalCamera::AExternalCamera()
 	UPROPERTY(EditAnywhere)
 	MaxArmLength = 150000.0f;
 	UPROPERTY(EditAnywhere)
-	ZoomSpeed = 100000.0f;
+	ZoomSpeed = 50000.0f;
 
 	RootComponent = CreateDefaultSubobject<USceneComponent>(TEXT("RootComponent"));
 	InnerSpringArm = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraSpringArm"));

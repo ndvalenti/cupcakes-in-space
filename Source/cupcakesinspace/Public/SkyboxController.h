@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Kismet/GameplayStatics.h"
+#include "Math/NumericLimits.h"
 #include "GameFramework/Actor.h"
 #include "SkyboxController.generated.h"
 
