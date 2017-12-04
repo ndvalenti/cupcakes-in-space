@@ -37,7 +37,9 @@ AExternalCamera::AExternalCamera()
 void AExternalCamera::BeginPlay()
 {
 	Super::BeginPlay();
-	PlayerController = Cast<APlayerController>(GetController());
+	MaxOriginOffset = 50000.f;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ALocalPawn::StaticClass(), LocalObjects);
+	bDebug = false;
 }
 
 // Called every frame
@@ -48,7 +50,6 @@ void AExternalCamera::Tick(float DeltaTime)
 	{
 		if (bLeftClick)
 		{
-			//PlayerController->SetInputMode(FInputModeGameOnly());
 			ZoomFactor = DeltaTime * CameraInput.Y;
 			ZoomFactor = ZoomSpeed * FMath::Clamp<float>(ZoomFactor, -1.0f, 1.0f);
 
@@ -63,7 +64,6 @@ void AExternalCamera::Tick(float DeltaTime)
 			}
 			*/
 			InnerSpringArm->TargetArmLength = FMath::Clamp<float>(InnerSpringArm->TargetArmLength + ZoomFactor, MinArmLength, MaxArmLength);
-			//PlayerController->SetInputMode(FInputModeGameAndUI());
 		}
 		else
 		{
@@ -76,6 +76,17 @@ void AExternalCamera::Tick(float DeltaTime)
 			NewPRotation.Pitch = NewPRotation.Pitch + CameraInput.Y;
 			NewPRotation.Roll = 0.0f;
 			InnerSpringArm->SetWorldRotation(NewPRotation);
+		}
+	}
+	
+	float DistFromOrigin = FVector::Dist(SystemCamera->GetComponentLocation(), FVector::ZeroVector);
+
+	if (DistFromOrigin > MaxOriginOffset) {
+		if (!bDebug) {
+			UE_LOG(LogTemp, Warning, TEXT("Rebasing Origin to %s, Dist: %f"), *SystemCamera->GetComponentLocation().ToString(), DistFromOrigin);
+			GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Cyan, FString::Printf(TEXT("Rebasing Origin to %s, Dist: %f"), *SystemCamera->GetComponentLocation().ToString(), DistFromOrigin));
+			RebaseOrigin();
+			//bDebug = true;
 		}
 	}
 }
@@ -93,6 +104,24 @@ void AExternalCamera::SetupPlayerInputComponent(UInputComponent* PlayerInputComp
 
 	PlayerInputComponent->BindAxis("MouseXAxis", this, &AExternalCamera::YawCamera);
 	PlayerInputComponent->BindAxis("MouseYAxis", this, &AExternalCamera::PitchCamera);
+}
+
+void AExternalCamera::RebaseOrigin()
+{
+	//UGameplayStatics::GetAllActorsOfClass(GetWorld(), ALocalPawn::StaticClass(), LocalObjects);
+
+	//DrawDebugSphere(GetWorld(), SystemCamera->GetComponentLocation(), 100.f, 32, FColor::Green, true);
+	//DrawDebugLine(GetWorld(), FVector::ZeroVector, SystemCamera->GetComponentLocation(), FColor::Green, true);
+	FVector ShiftedOrigin = SystemCamera->GetComponentLocation();
+
+	for (auto& LP : LocalObjects) {
+		//UE_LOG(LogTemp, Warning, TEXT("Shifting %s from %s"), *LP->GetName(), *LP->GetActorLocation().ToString());
+		LP->SetActorLocation(LP->GetActorLocation() - ShiftedOrigin);
+		//UE_LOG(LogTemp, Warning, TEXT("to %s"), *LP->GetActorLocation().ToString());
+	}
+	//UE_LOG(LogTemp, Warning, TEXT("Shifting Origin from %s"), *GetActorLocation().ToString());
+	SetActorLocation(GetActorLocation() - ShiftedOrigin);
+	//UE_LOG(LogTemp, Warning, TEXT("to %s"), *GetActorLocation().ToString());
 }
 
 void AExternalCamera::PitchCamera(float AxisValue)

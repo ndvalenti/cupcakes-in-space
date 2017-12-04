@@ -13,17 +13,14 @@ void AExternalPlayerController::BeginPlay()
 
 void AExternalPlayerController::Tick(float DeltaTime)
 {
-	/*
-	if (CameraFocus != NULL) {
-		UE_LOG(LogTemp, Warning, TEXT("Possessed %s"), *CameraFocus->GetName());
-	}
-	*/
-}
 
+}
+/*
 AExternalCamera* AExternalPlayerController::GetExternalCamera() const
 {
 	return Cast<AExternalCamera>(GetPawn());
 }
+*/
 
 void AExternalPlayerController::SetCameraFocus(AActor *FocusedPawn)
 {

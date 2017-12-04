@@ -15,7 +15,9 @@ ALocalPawn::ALocalPawn()
 void ALocalPawn::BeginPlay()
 {
 	Super::BeginPlay();
-	OnClicked.AddUniqueDynamic(this, &ALocalPawn::PawnClicked);
+	if (bClickable) {
+		OnClicked.AddUniqueDynamic(this, &ALocalPawn::PawnClicked);
+	}
 }
 
 // Called every frame
@@ -34,9 +36,6 @@ void ALocalPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent
 
 void ALocalPawn::PawnClicked(AActor* TouchedActor, FKey ButtonPressed)
 {
-	if (FindComponentByClass<UExternalClickablePawn>())
-	{
-		UE_LOG(LogTemp, Warning, TEXT("PawnClicked"));
-	}
+	Cast<AExternalPlayerController>(GetWorld()->GetFirstPlayerController())->SetCameraFocus(this);
 }
 

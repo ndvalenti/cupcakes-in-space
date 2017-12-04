@@ -3,7 +3,6 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "ExternalCamera.h"
 #include "GameFramework/PlayerController.h"
 #include "ExternalPlayerController.generated.h"
 
@@ -17,7 +16,7 @@ class CUPCAKESINSPACE_API AExternalPlayerController : public APlayerController
 	
 public:
 	// Returns a pointer to the pawn the player is currently possessing
-	AExternalCamera* GetExternalCamera() const;
+	//AExternalCamera* GetExternalCamera() const;
 	UFUNCTION(BlueprintCallable)
 	void SetCameraFocus(AActor *FocusedPawn);
 	virtual void BeginPlay() override;
@@ -25,7 +24,6 @@ public:
 
 protected:
 	UPROPERTY(EditAnywhere)
-	//APawn* CameraFocus;
 	TLazyObjectPtr<AActor> CameraFocus;
 	
 };

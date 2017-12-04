@@ -5,7 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Pawn.h"
 #include "ScriptDelegates.h"
-#include "ExternalClickablePawn.h"
+#include "ExternalPlayerController.h"
 #include "LocalPawn.generated.h"
 
 UCLASS()
@@ -16,6 +16,8 @@ class CUPCAKESINSPACE_API ALocalPawn : public APawn
 public:
 	// Sets default values for this pawn's properties
 	ALocalPawn();
+	UPROPERTY(EditAnywhere)
+	bool bClickable;
 
 protected:
 	// Called when the game starts or when spawned

@@ -3,10 +3,12 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GameFramework/Pawn.h"
+#include "DrawDebugHelpers.h"
+#include "LocalPawn.h"
+#include "Kismet/GameplayStatics.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Classes/Camera/CameraComponent.h"
-#include "Classes/GameFramework/PlayerController.h"
+#include "Engine.h"
 #include "ExternalCamera.generated.h"
 
 UCLASS()
@@ -22,7 +24,7 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 	USpringArmComponent* InnerSpringArm;
-	UPROPERTY(VisibleAnywhere,BlueprintReadOnly)
+	UPROPERTY(EditAnywhere)
 	UCameraComponent* SystemCamera;
 
 	UPROPERTY(EditAnywhere)
@@ -31,14 +33,21 @@ protected:
 	float MinArmLength;
 	UPROPERTY(EditAnywhere)
 	float ZoomSpeed;
+	UPROPERTY(EditAnywhere)
+	float MaxOriginOffset;
+	UPROPERTY(EditAnywhere)
+	TArray<AActor*> LocalObjects;
 
 	UPROPERTY(EditAnywhere)
-	APlayerController* PlayerController;
+	TArray<APawn*> WorldPawns;
+
 	FVector2D CameraInput;
 	float ZoomFactor;
 	float RestingArmLength;
 	bool bRightClick;
 	bool bLeftClick;
+
+	void RebaseOrigin();
 
 	void PitchCamera(float AxisValue);
 	void YawCamera(float AxisValue);
@@ -47,6 +56,8 @@ protected:
 	void RightClickDown();
 	void RightClickUp();
 
+	bool bDebug;
+
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
@@ -54,6 +65,7 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
+	
 	
 	
 };
