@@ -1,7 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "LocalPawn.h"
-
+#include "GameStateManager.h"
 
 // Sets default values
 ALocalPawn::ALocalPawn()
@@ -15,6 +15,9 @@ ALocalPawn::ALocalPawn()
 void ALocalPawn::BeginPlay()
 {
 	Super::BeginPlay();
+
+	Manager = Cast<AGameStateManager>(GetWorld()->GetGameState());
+
 	if (bClickable) {
 		OnClicked.AddUniqueDynamic(this, &ALocalPawn::PawnClicked);
 	}
@@ -27,15 +30,11 @@ void ALocalPawn::Tick(float DeltaTime)
 
 }
 
-// Called to bind functionality to input
-void ALocalPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
-{
-	Super::SetupPlayerInputComponent(PlayerInputComponent);
-
-}
-
+//AActor* ALocalPawn::PawnClicked(AActor* TouchedActor, FKey ButtonPressed)
+// The more I look at this the more horrified it makes me
+// TODO: literally anything else, can depreciate to an actor with a line trace in MasterPlayerController
 void ALocalPawn::PawnClicked(AActor* TouchedActor, FKey ButtonPressed)
 {
-	Cast<AExternalPlayerController>(GetWorld()->GetFirstPlayerController())->SetCameraFocus(this);
+	Cast<AMasterPlayerController>(GetWorld()->GetFirstPlayerController())->SetCameraFocus(this);
 }
 

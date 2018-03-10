@@ -3,9 +3,10 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Kismet/GameplayStatics.h"
-#include "Math/NumericLimits.h"
 #include "GameFramework/Actor.h"
+
+#include "Kismet/GameplayStatics.h"
+
 #include "SkyboxController.generated.h"
 
 UCLASS()
@@ -20,13 +21,15 @@ public:
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
+	FVector PreviousDesiredLoc;
 
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
+	
 
 	UPROPERTY(EditAnywhere)
-	TLazyObjectPtr<AActor> ExternalCamera;
+	TLazyObjectPtr<AActor> CurrCamera;
 
 	
 	

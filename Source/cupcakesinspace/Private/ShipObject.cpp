@@ -2,10 +2,7 @@
 
 #include "ShipObject.h"
 
-ShipObject::ShipObject()
+UShipObject::UShipObject()
 {
-}
-
-ShipObject::~ShipObject()
-{
+	
 }

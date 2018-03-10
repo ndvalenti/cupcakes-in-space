@@ -17,15 +17,15 @@ void ACelestialController::BeginPlay()
 	Super::BeginPlay();
 	SetTickGroup(TG_PostUpdateWork);
 	PlanetLocation = GetActorLocation();
-	ExternalCamera = UGameplayStatics::GetPlayerCameraManager(GetWorld(), 0);
+	CurrCamera = UGameplayStatics::GetPlayerCameraManager(GetWorld(), 0);
 }
 
 // Called every frame
 void ACelestialController::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-	if (ExternalCamera) {
-		SetActorLocation(ExternalCamera->GetActorLocation() + PlanetLocation);
+	if (CurrCamera) {
+		SetActorLocation(CurrCamera->GetActorLocation() + PlanetLocation);
 	}
 }
 

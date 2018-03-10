@@ -4,11 +4,12 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/GameStateBase.h"
+
+#include "LocalPawn.h"
+
 #include "GameStateManager.generated.h"
 
-/**
- * 
- */
+
 UCLASS()
 class CUPCAKESINSPACE_API AGameStateManager : public AGameStateBase
 {

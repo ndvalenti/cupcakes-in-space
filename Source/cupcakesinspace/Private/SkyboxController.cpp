@@ -16,15 +16,15 @@ void ASkyboxController::BeginPlay()
 {
 	Super::BeginPlay();
 	SetTickGroup(TG_PostUpdateWork);
-	ExternalCamera = UGameplayStatics::GetPlayerCameraManager(GetWorld(), 0);
+	CurrCamera = UGameplayStatics::GetPlayerCameraManager(GetWorld(), 0);
 }
 
 // Called every frame
 void ASkyboxController::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-	if (ExternalCamera)	{
-		SetActorLocation(ExternalCamera->GetActorLocation());
+	if (CurrCamera)	{
+		SetActorLocation(CurrCamera->GetActorLocation());
 	}
 }
 

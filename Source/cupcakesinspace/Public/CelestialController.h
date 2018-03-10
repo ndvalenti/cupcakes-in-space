@@ -3,8 +3,10 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Kismet/GameplayStatics.h"
 #include "GameFramework/Actor.h"
+
+#include "Kismet/GameplayStatics.h"
+
 #include "CelestialController.generated.h"
 
 UCLASS()
@@ -26,6 +28,6 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 	UPROPERTY(EditAnywhere)
-	TLazyObjectPtr<AActor> ExternalCamera;
+	TLazyObjectPtr<AActor> CurrCamera;
 	
 };
