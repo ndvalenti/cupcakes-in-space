@@ -1,7 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
-
 #include "LocalPawn.h"
 #include "GameStateManager.h"
+#include "MasterPlayerController.h"
 
 // Sets default values
 ALocalPawn::ALocalPawn()
@@ -32,9 +32,9 @@ void ALocalPawn::Tick(float DeltaTime)
 
 //AActor* ALocalPawn::PawnClicked(AActor* TouchedActor, FKey ButtonPressed)
 // The more I look at this the more horrified it makes me
-// TODO: literally anything else, can depreciate to an actor with a line trace in MasterPlayerController
+// TODO: something else, can depreciate to an actor with a proper line trace in MasterPlayerController
 void ALocalPawn::PawnClicked(AActor* TouchedActor, FKey ButtonPressed)
 {
-	Cast<AMasterPlayerController>(GetWorld()->GetFirstPlayerController())->SetCameraFocus(this);
+	//Cast<AMasterPlayerController>(GetWorld()->GetFirstPlayerController())->SetCameraFocus(this);
 }
 

@@ -8,6 +8,7 @@
 #include "UObjectBaseUtility.h"
 #include "ObjectMacros.h"
 
+#include "Int64Vector.h"
 #include "IntVector.h"
 #include "Kismet/GameplayStatics.h"
 #include "EngineUtils.h"
@@ -15,7 +16,7 @@
 #include "ExternalCamera.generated.h"
 
 
-// START TEST
+class AMasterPlayerController;
 USTRUCT()
 struct FSecondTick : public FTickFunction
 {
@@ -34,7 +35,6 @@ struct TStructOpsTypeTraits<FSecondTick> : public TStructOpsTypeTraitsBase2<FSec
 {
 	enum { WithCopy = false };
 };
-//END TEST
 
 UCLASS()
 class CUPCAKESINSPACE_API AExternalCamera : public APawn
@@ -42,10 +42,8 @@ class CUPCAKESINSPACE_API AExternalCamera : public APawn
 	GENERATED_BODY()
 
 public:
-	// Sets default values for this pawn's properties
 	AExternalCamera();
 
-	// START TEST
 	UPROPERTY(EditDefaultsOnly, Category = "Tick")
 	FSecondTick SecondaryActorTick;
 
@@ -53,44 +51,43 @@ public:
 	virtual void PostInitProperties() override;
 	void TickActor2 (float DeltaSeconds, ELevelTick TickType, FSecondTick &ThisTickFunction);
 	void Tick2(float DeltaTime);
-	// END TEST
 
 protected:
-	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
+
+	/*
+	 * Child Components
+	 */
 	USpringArmComponent* InnerSpringArm;
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(VisibleAnywhere)
 	UCameraComponent* SystemCamera;
 
-	UPROPERTY(EditAnywhere)
+	/*
+	 * Input and Camera Controls
+	 */
+	UPROPERTY(EditAnywhere, Category=Camera)
 	float MaxArmLength;
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, Category = Camera)
 	float MinArmLength;
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, Category = Camera)
 	float ZoomSpeed;
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, Category = Camera)
 	float MaxOriginOffset;
-	//UPROPERTY(EditAnywhere)
-	//TArray<AActor*> LocalObjects;
-	//UPROPERTY(EditAnywhere)
-	//TArray<ASkyboxController*> Skybox;
-	//UPROPERTY(EditAnywhere)
-	//TArray<ACelestialController*> Celestials;
-	
-	
-
 	FVector2D CameraInput;
 	float ZoomFactor;
 	float RestingArmLength;
 	bool bRightClick;
 	bool bLeftClick;
 
-	bool bRebase;
-	UPROPERTY(EditAnywhere)
-	FIntVector CurrentOffset;
-	void RebaseOrigin();
-	void PopulateActors();
+	/*
+	 * Origin Rebasing Declarations
+	 */
+	bool bMarkForRebasing;
+	UPROPERTY(VisibleAnywhere)
+	FIntVector LocalOriginOffset;
+	AMasterPlayerController* MasterPlayerController;
 
+	void RebaseOrigin();
 	void PitchCamera(float AxisValue);
 	void YawCamera(float AxisValue);
 	void LeftClickDown();
@@ -98,16 +95,14 @@ protected:
 	void RightClickDown();
 	void RightClickUp();
 
+	/*
+	 * Debug Variables and Functions
+	 */
+	void DebugAction();
 	bool bDebug;
 
 public:	
-	// Called every frame
 	virtual void Tick(float DeltaTime) override;
+	virtual void SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override;
 
-	// Called to bind functionality to input
-	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
-
-	
-	
-	
 };

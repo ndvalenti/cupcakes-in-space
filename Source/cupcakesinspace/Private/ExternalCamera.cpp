@@ -1,44 +1,37 @@
 // Fill out your copyright notice in the Description page of Project Settings.
-
 #include "ExternalCamera.h"
-
-
+#include "MasterPlayerController.h"
 
 // Sets default values
 AExternalCamera::AExternalCamera()
 {
- 	// Set this pawn to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	// PrimaryActorTick.bCanEverTick = true;
-
-	// BEGIN TEST (Uncomment primary actor tick above if deleting)
+	/* 
+	 * Tick Group Initializations
+	 */
 	PrimaryActorTick.TickGroup = TG_PrePhysics;
 	PrimaryActorTick.bCanEverTick = true;
 	PrimaryActorTick.bStartWithTickEnabled = true;
-
 	SecondaryActorTick.TickGroup = TG_PostPhysics;
 	SecondaryActorTick.bCanEverTick = true;
 	SecondaryActorTick.bStartWithTickEnabled = true;
-	// END TEST
 
+	/* 
+	 * Camera Settings and Behavious
+	 */
 	RestingArmLength = 1000.0f;
 	MinArmLength = 800.0f;
 	MaxArmLength = 350000.0f;
 	ZoomSpeed = 150000.0f;
-	CurrentOffset = CurrentOffset.ZeroValue;
+	MaxOriginOffset = 50000.f;
+	LocalOriginOffset = LocalOriginOffset.ZeroValue;
 
 	RootComponent = CreateDefaultSubobject<USceneComponent>(TEXT("RootComponent"));
 	InnerSpringArm = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraSpringArm"));
 	InnerSpringArm->SetupAttachment(RootComponent);
 	//InnerSpringArm->SetRelativeLocationAndRotation(FVector(0.0F, 0.0F, 50.0F), FRotator(-60.0f, 0.0f, 0.0f));
 	InnerSpringArm->TargetArmLength = RestingArmLength;
-
-	//InnerSpringArm->CameraLagMaxDistance = 10000.f;
-	//InnerSpringArm->bEnableCameraLag = true;
-
-	InnerSpringArm->bDrawDebugLagMarkers = true;
 	InnerSpringArm->bEnableCameraRotationLag = true;
 	InnerSpringArm->CameraLagSpeed = 3.0f;
-
 	InnerSpringArm->bDoCollisionTest = false;
 
 	SystemCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("SystemCamera"));
@@ -101,12 +94,10 @@ void AExternalCamera::PostInitProperties()
 void AExternalCamera::BeginPlay()
 {
 	Super::BeginPlay();
-	MaxOriginOffset = 50000.f;
-
-	PopulateActors();
 
 	bDebug = false;
-	bRebase = false;
+	bMarkForRebasing = false;
+	MasterPlayerController = Cast<AMasterPlayerController>(GetWorld()->GetFirstPlayerController());
 }
 
 // Called every frame
@@ -151,9 +142,9 @@ void AExternalCamera::Tick(float DeltaTime)
 	if (DistFromOrigin > MaxOriginOffset) {
 		if (!bDebug) {
 			UE_LOG(LogTemp, Warning, TEXT("Rebasing Origin to %s, Dist: %f"), *SystemCamera->GetComponentLocation().ToString(), DistFromOrigin);
-			GEngine->AddOnScreenDebugMessage(1, .5f, FColor::Cyan, FString::Printf(TEXT("Rebasing Origin to %s, Dist: %f"), *SystemCamera->GetComponentLocation().ToString(), DistFromOrigin));
+			GEngine->AddOnScreenDebugMessage(1, .5f, FColor::Cyan, FString::Printf(TEXT("Rebasing Origin to %s, Dist: %f"), *SystemCamera->GetComponentLocation().ToString()), DistFromOrigin);
 		}
-		bRebase = true;
+		bMarkForRebasing = true;
 	}
 }
 
@@ -165,10 +156,22 @@ void AExternalCamera::Tick2(float DeltaTime)
 	FIntVector ShiftedOrigin = FIntVector(SystemCamera->GetComponentLocation());
 	GEngine->AddOnScreenDebugMessage(3, .5f, FColor::Red, FString::Printf(TEXT("Location: %s"), *ShiftedOrigin.ToString()));
 	
-	if (bRebase)
+	if (bMarkForRebasing)
 	{
 		RebaseOrigin();
-		bRebase = false;
+		bMarkForRebasing = false;
+	}
+}
+
+void AExternalCamera::DebugAction()
+{
+	if (MasterPlayerController)
+	{
+		MasterPlayerController->SpawnAllAtLocation();
+	}
+	else 
+	{
+		UE_LOG(LogTemp, Error, TEXT("Something terrible has happened: manager UA"))
 	}
 }
 
@@ -188,58 +191,15 @@ void AExternalCamera::SetupPlayerInputComponent(UInputComponent* PlayerInputComp
 	PlayerInputComponent->BindAxis("MouseXAxis", this, &AExternalCamera::YawCamera);
 	PlayerInputComponent->BindAxis("MouseYAxis", this, &AExternalCamera::PitchCamera);
 
-	//PlayerInputComponent->BindAxis("Action", this, );
+	PlayerInputComponent->BindAction("Action", IE_Pressed, this, &AExternalCamera::DebugAction);
 }
 
 void AExternalCamera::RebaseOrigin()
 {
 	FIntVector ShiftedOrigin = FIntVector(SystemCamera->GetComponentLocation());
-	CurrentOffset += ShiftedOrigin;
-	GetWorld()->RequestNewWorldOrigin(CurrentOffset);
-
-	/*
-	for (auto& LP : LocalObjects) {
-		LP->SetActorLocation(LP->GetActorLocation() - ShiftedOrigin);
-	}
-
-	for (auto& LP : Skybox) {
-		LP->SetActorLocation(LP->GetActorLocation() - ShiftedOrigin);
-	}
-
-	for (auto& LP : Celestials) {
-		LP->SetActorLocation(LP->GetActorLocation() - ShiftedOrigin);
-	}
-	
-	SetActorLocation(GetActorLocation() - ShiftedOrigin);
-	*/
-}
-
-void AExternalCamera::PopulateActors()
-{
-	/*
-	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ALocalPawn::StaticClass(), LocalObjects);
-	//UGameplayStatics::GetAllActorsOfClass(GetWorld(), ASkyboxController::StaticClass(), Skybox);
-	//UGameplayStatics::GetAllActorsOfClass(GetWorld(), ACelestialController::StaticClass(), Celestials);
-
-	for (TActorIterator<ASkyboxController> It(GetWorld()); It; ++It)
-	{
-		ASkyboxController* Actor = *It;
-		if (!Actor->IsPendingKill())
-		{
-			Skybox.Add(Actor);
-			//Actor->AddTickPrerequisiteComponent(InnerSpringArm);
-		}
-	}
-	for (TActorIterator<ACelestialController> It(GetWorld()); It; ++It)
-	{
-		ACelestialController* Actor = *It;
-		if (!Actor->IsPendingKill())
-		{
-			Celestials.Add(Actor);
-			//Actor->AddTickPrerequisiteComponent(InnerSpringArm);
-		}
-	}
-	*/
+	LocalOriginOffset += ShiftedOrigin;
+	UStaticUtilities::TranslateGlobalOffset(ShiftedOrigin);
+	GetWorld()->RequestNewWorldOrigin(LocalOriginOffset);
 }
 
 void AExternalCamera::PitchCamera(float AxisValue)
