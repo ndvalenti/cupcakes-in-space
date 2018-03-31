@@ -14,12 +14,7 @@ class CUPCAKESINSPACE_API UStaticUtilities : public UObject
 {
 	GENERATED_BODY()
 public:
-	static const FInt64Vector CurrentGlobalOffset();
-	static const void SetGlobalOffset(const FInt64Vector& NewOffset);
-	static const void TranslateGlobalOffset(const FIntVector& Translation);
-
-	static const int SpawnCheckDistance();
-	static const float FarCheckDistance();
+	//UStaticUtilities(const FObjectInitializer& ObjectInitializer);
 
 protected:
 	static FInt64Vector _CurrentGlobalOffset;
@@ -28,4 +23,12 @@ protected:
 
 	/*Not Currently Used*/
 	static int _SpawnDangerDistance;
+
+public:
+	static const FInt64Vector CurrentGlobalOffset();
+	static const void SetGlobalOffset(const FInt64Vector& NewOffset);
+	static const void TranslateGlobalOffset(const FIntVector& Translation);
+	static const int SpawnCheckDistance();
+	static const float FarCheckDistance();
+	static const void ResetGlobalOffset();
 };

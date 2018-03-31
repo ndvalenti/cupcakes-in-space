@@ -24,7 +24,6 @@ struct FSpawnPackage
 	FRotator Rotation;
 };
 
-
 UCLASS()
 class CUPCAKESINSPACE_API AMasterPlayerController : public APlayerController
 {
@@ -38,17 +37,13 @@ public:
 	UPROPERTY(EditAnywhere, Category = Debug)
 	TArray<ULevel*> LoadedLevels;
 
-	/*Debug, does nothing usually and will be removed soon*/
-	UFUNCTION()
-	void Test();
-
-	// TODO: Add coordinates of origin to interior of this function
-	/* Spawns all ships at current origin, for use in initial area loading
-	 * This needs additional functions to preload and unload which are currently
-	 * unimplemented 
+	/* 
+	 * Spawns all ships at current origin, for use in initial area loading
+	 * This needs additional functions to preload and unload which are unimplemented
 	 */
-	UFUNCTION()
+	UFUNCTION(BlueprintCallable)
 	void SpawnAllAtLocation();
+
 	/*Spawns the supplied ship object in the world*/
 	UFUNCTION()
 	bool SpawnShip(UShipObject* Ship);
@@ -56,13 +51,10 @@ public:
 	AGameStateManager* GameStateManager;
 	FStreamableManager Streamable;
 
-	UFUNCTION(BlueprintCallable)
-	void SetCameraFocus(AActor *FocusedPawn);
-
 protected:
-	UPROPERTY(VisibleAnywhere)
-	TLazyObjectPtr<AActor> CameraFocus;
-	TQueue<FSpawnPackage> SpawnPackage;
 	UFUNCTION()
-	void SpawnAsset();
+	void SpawnAssetInWorld(FSpawnPackage SpawnPackage);
+
+	TArray<FSoftObjectPath> ShipLoadableAssetList;
+	FPrimaryAssetType ShipPrimaryAssetType;
 };

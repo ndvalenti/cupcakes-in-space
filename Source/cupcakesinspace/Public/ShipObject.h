@@ -13,6 +13,7 @@
 
 #include "Object.h"
 #include "Int64Vector.h"
+#include "StaticUtilities.h"
 
 #include "ShipObject.generated.h"
 
@@ -60,7 +61,7 @@ public:
 	FVector GetFarLocation();
 
 	/* 
-	 * Debug Function to be replaced
+	 * Currently acting as a Debug Function to be replaced
 	 * Final implementation will return a formatted distance string in a less intensive manner
 	 */
 	FString GetDisplayDistanceTo(const FInt64Vector& From);
@@ -70,11 +71,11 @@ protected:
 	UPROPERTY(VisibleAnywhere)
 	FInt64Vector PreciseShipLocation;
 
-	/*Ship position in lm, derived from PreciseShipLocation*/
+	/*Ship position in light minutes, currently derived from PreciseShipLocation*/
 	UPROPERTY(VisibleAnywhere)
 	FVector LongShipLocation;
 
-	/*Debug function, to be replaced with a less computationally intensive implementation*/
+	/*Debug function for now, will be rewritten*/
 	FString GetFloatAsString(float Number, int Precision);
 
 	/*

@@ -12,6 +12,7 @@
 #include "IntVector.h"
 #include "Kismet/GameplayStatics.h"
 #include "EngineUtils.h"
+#include "Engine.h"
 
 #include "ExternalCamera.generated.h"
 

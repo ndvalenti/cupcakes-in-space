@@ -1,7 +1,5 @@
 // Fill out your copyright notice in the Description page of Project Settings.
-
 #include "ShipObject.h"
-#include "MasterPlayerController.h"
 /*
  * Default Constructor
  */
@@ -13,13 +11,12 @@ UShipObject::UShipObject()
 /* 
  * Standard constructor to create a ship 
  */
-// TODO: Add system information, expand as class grows
 void UShipObject::InitializeShip(const FString& Type, const FInt64Vector& InitialPosition)
 {
 	ShipType = Type;
 	PreciseShipLocation = InitialPosition;
 	UpdateFarLocation();
-	//UE_LOG(LogTemp, Display, TEXT("Ship %s initialized at %s:  %s away"), *ShipType, *PreciseShipLocation.ToString(), *GetDisplayDistanceTo(UStaticUtilities::CurrentGlobalOffset()))
+	UE_LOG(LogTemp, Warning, TEXT("Ship %s initialized at %s:  %s away"), *ShipType, *PreciseShipLocation.ToString(), *GetDisplayDistanceTo(UStaticUtilities::CurrentGlobalOffset()))
 	SetDistanceGroup();
 }
 
@@ -89,7 +86,7 @@ void UShipObject::GetSpawnPositionAndRotation(FVector &OutVector, FRotator &OutR
 	OutVector.Y = (float)(PreciseShipLocation.Y - UStaticUtilities::CurrentGlobalOffset().Y);
 	OutVector.Z = (float)(PreciseShipLocation.Z - UStaticUtilities::CurrentGlobalOffset().Z);
 	OutRotation = FRotator::ZeroRotator;
-	UE_LOG(LogTemp, Warning, TEXT("OutVector: %s"), *OutVector.ToString());
+	//UE_LOG(LogTemp, Warning, TEXT("OutVector: %s"), *OutVector.ToString());
 }
 
 void UShipObject::UpdateFarLocation()

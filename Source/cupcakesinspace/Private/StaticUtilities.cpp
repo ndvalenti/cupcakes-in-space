@@ -8,28 +8,36 @@ int UStaticUtilities::_SpawnCheckDistance = 2000000;
 
 /*Not Currently Used*/
 int UStaticUtilities::_SpawnDangerDistance = 20000000;
-
-const FORCEINLINE FInt64Vector UStaticUtilities::CurrentGlobalOffset()
+/*
+UStaticUtilities::UStaticUtilities(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
+{ }
+*/
+const FInt64Vector UStaticUtilities::CurrentGlobalOffset()
 {
 	return _CurrentGlobalOffset;
 }
 
-const FORCEINLINE float UStaticUtilities::FarCheckDistance()
+const float UStaticUtilities::FarCheckDistance()
 {
 	return _FarCheckDistance;
 }
 
-const FORCEINLINE int UStaticUtilities::SpawnCheckDistance()
+const int UStaticUtilities::SpawnCheckDistance()
 {
 	return _SpawnCheckDistance;
 }
 
-const FORCEINLINE void UStaticUtilities::SetGlobalOffset(const FInt64Vector& NewOffset)
+const void UStaticUtilities::SetGlobalOffset(const FInt64Vector& NewOffset)
 {
 	_CurrentGlobalOffset = NewOffset;
 }
 
-const FORCEINLINE void UStaticUtilities::TranslateGlobalOffset(const FIntVector& Translation)
+const void UStaticUtilities::TranslateGlobalOffset(const FIntVector& Translation)
 {
 	_CurrentGlobalOffset += Translation;
+}
+
+const void UStaticUtilities::ResetGlobalOffset()
+{
+	_CurrentGlobalOffset = FInt64Vector::FInt64Vector(0, 0, 0);
 }

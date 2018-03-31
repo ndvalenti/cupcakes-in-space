@@ -2,7 +2,6 @@
 #include "ExternalCamera.h"
 #include "MasterPlayerController.h"
 
-// Sets default values
 AExternalCamera::AExternalCamera()
 {
 	/* 
@@ -39,9 +38,9 @@ AExternalCamera::AExternalCamera()
 
 	AutoPossessPlayer = EAutoReceiveInput::Player0;
 	BaseEyeHeight = 0.0f;
-}
 
-// BEGIN TEST
+	
+}
 
 void AExternalCamera::TickActor2(float DeltaSeconds, ELevelTick TickType, FSecondTick & ThisTickFunction)
 {
@@ -87,10 +86,6 @@ void AExternalCamera::PostInitProperties()
 	}
 }
 
-// END TEST
-
-
-// Called when the game starts or when spawned
 void AExternalCamera::BeginPlay()
 {
 	Super::BeginPlay();
@@ -100,7 +95,6 @@ void AExternalCamera::BeginPlay()
 	MasterPlayerController = Cast<AMasterPlayerController>(GetWorld()->GetFirstPlayerController());
 }
 
-// Called every frame
 void AExternalCamera::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
@@ -171,13 +165,10 @@ void AExternalCamera::DebugAction()
 	}
 	else 
 	{
-		UE_LOG(LogTemp, Error, TEXT("Something terrible has happened: manager UA"))
+		UE_LOG(LogTemp, Error, TEXT("Something terrible has happened: playercontroller UA"))
 	}
 }
 
-
-
-// Called to bind functionality to input
 void AExternalCamera::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
@@ -191,7 +182,7 @@ void AExternalCamera::SetupPlayerInputComponent(UInputComponent* PlayerInputComp
 	PlayerInputComponent->BindAxis("MouseXAxis", this, &AExternalCamera::YawCamera);
 	PlayerInputComponent->BindAxis("MouseYAxis", this, &AExternalCamera::PitchCamera);
 
-	PlayerInputComponent->BindAction("Action", IE_Pressed, this, &AExternalCamera::DebugAction);
+	//PlayerInputComponent->BindAction("Action", IE_Pressed, this, &AExternalCamera::DebugAction);
 }
 
 void AExternalCamera::RebaseOrigin()
@@ -232,10 +223,8 @@ void AExternalCamera::LeftClickUp()
 	bLeftClick = false;
 }
 
-// BEGIN TEST
 void FSecondTick::ExecuteTick(float DeltaTime, ELevelTick TickType, ENamedThreads::Type CurrentThread, const FGraphEventRef & MyCompletionGraphEvent)
 {
-	//if (Target && !Target->HasAnyFlags(RF_PendingKill | RF_Unreachable))
 	if (Target && !Target->IsPendingKillOrUnreachable())
 	{
 		FScopeCycleCounterUObject ActorScope(Target);
@@ -247,4 +236,3 @@ FString FSecondTick::DiagnosticMessage()
 {
 	return Target->GetFullName() + TEXT("[TickActor2]");
 }
-// END TEST

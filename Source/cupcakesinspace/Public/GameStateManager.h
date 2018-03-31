@@ -22,6 +22,7 @@ public:
 	AGameStateManager();
 	UPROPERTY(VisibleAnywhere, Category="Asset Master Lists")
 	TArray<FSoftObjectPath> ShipAssetList;
+
 	UPROPERTY(VisibleAnywhere, Category = "Ship Lists")
 	TMap<int32, UShipObject*> ShipMasterList;
 
@@ -40,12 +41,20 @@ public:
 	UPROPERTY(EditAnywhere, Category="Ship Lists")
 	UShipObject* PlayerShip;
 
+	UFUNCTION(BlueprintCallable)
+	FName GetBridgeLevel();
+	UFUNCTION(BlueprintCallable)
+	FName GetSystemLevel();
+
 protected:
 	UFUNCTION()
 	void OnFilesLoaded();
 	UFUNCTION()
-	void BuildList();
+	void BuildSampleList();
 	UPROPERTY(VisibleAnywhere)
 	int32 ShipIndex;
-
+	UPROPERTY(EditAnywhere)
+	FName BridgeLevel;
+	UPROPERTY(EditAnywhere)
+	FName SystemLevel;
 };
