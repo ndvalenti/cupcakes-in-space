@@ -1,113 +1,155 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 #include "ShipObject.h"
-/*
- * Default Constructor
- */
-UShipObject::UShipObject()
+#include "GameStateManager.h"
+
+/*--------------------------PROTECTED FUNCTIONS--------------------------*/
+UShipObject::UShipObject() : bSpawned(false)
 {
 
 }
 
-/* 
- * Standard constructor to create a ship 
- */
-void UShipObject::InitializeShip(const FString& Type, const FInt64Vector& InitialPosition)
+void UShipObject::InitializeShip(const FString& Type, const FInt64Vector& InitialPosition, const int32& ShipIndex, const FName& System)
 {
-	ShipType = Type;
-	PreciseShipLocation = InitialPosition;
-	UpdateFarLocation();
-	UE_LOG(LogTemp, Warning, TEXT("Ship %s initialized at %s:  %s away"), *ShipType, *PreciseShipLocation.ToString(), *GetDisplayDistanceTo(UStaticUtilities::CurrentGlobalOffset()))
-	SetDistanceGroup();
+	_ShipType = Type;
+	_PreciseShipLocation = InitialPosition;
+	_ShipIndex = ShipIndex;
+	_System = System;
+	UpdateImpreciseLocation();
 }
 
-FInt64Vector UShipObject::GetCloseLocation()
+void UShipObject::SetDistanceGroup(const EShipDistance ShipDistance)
 {
-	return PreciseShipLocation;
+	_ShipDistanceGroup = ShipDistance;
 }
 
-FVector UShipObject::GetFarLocation()
+void UShipObject::FlagAsPlayer()
 {
-	return LongShipLocation;
+	_ShipDistanceGroup = EShipDistance::SH_PLAYER;
 }
 
-FString UShipObject::GetDisplayDistanceTo(const FInt64Vector& From)
+void UShipObject::UpdateImpreciseLocation()
+{
+	_LongShipLocation.X = (_PreciseShipLocation.X / 1798754748);
+	_LongShipLocation.Y = (_PreciseShipLocation.Y / 1798754748);
+	_LongShipLocation.Z = (_PreciseShipLocation.Z / 1798754748);
+	_LongShipLocation /= 100.f;
+}
+
+void UShipObject::SetSystem(FName& In)
+{
+	_System = In;
+}
+
+/*--------------------------PUBLIC FUNCTIONS--------------------------*/
+void UShipObject::GetDistanceGroup(EShipDistance& Out) const
+{
+	Out = _ShipDistanceGroup;
+}
+
+EShipDistance UShipObject::GetDistanceGroup() const
+{
+	return _ShipDistanceGroup;
+}
+
+void UShipObject::GetSpawnPositionAndRotation(FVector &OutVector, FRotator &OutRotation) const
+{
+	/*
+	* Dividing these large floats won't be completely accurate but having a ship's model
+	* possibly spawn at most a few cm (mm in game space) in the wrong direction should go unnoticed
+	* due to the sheer scale of this project and the fact that the local space takes over a ship's logic
+	* once it is close enough to spawn
+	*
+	* Once a final implementation is decided upon this function will be further documented in the header file
+	*/
+	OutVector.X = (float)(_PreciseShipLocation.X - UStaticUtilities::CurrentGlobalOffset().X);
+	OutVector.Y = (float)(_PreciseShipLocation.Y - UStaticUtilities::CurrentGlobalOffset().Y);
+	OutVector.Z = (float)(_PreciseShipLocation.Z - UStaticUtilities::CurrentGlobalOffset().Z);
+	//OutVector /= 10.f;
+	OutRotation = FRotator::ZeroRotator;
+}
+
+EShipDistance UShipObject::CalculateNewDistanceGroup(AGameStateManager* GameStateManager, bool bPlayerExists) const
+{
+	// This function assumes that the ship in question is in the same system as the player
+	if (bPlayerExists)
+	{
+		FInt64Vector PlayerLocation = UStaticUtilities::CurrentGlobalOffset();
+		if (_ShipDistanceGroup != EShipDistance::SH_PLAYER && _ShipDistanceGroup != EShipDistance::SH_DOCKED)
+		{
+			if (FVector::Dist(_LongShipLocation, UStaticUtilities::ConvertPreciseToImpreciseDistance(PlayerLocation)) >= UStaticUtilities::FarCheckDistance())
+			{
+				return EShipDistance::SH_FAR;
+			}
+			else
+			{
+				if (FInt64Vector::Distance(PlayerLocation, _PreciseShipLocation) >= UStaticUtilities::SpawnCheckDistance())
+				{
+					return EShipDistance::SH_NEAR;
+				}
+				else
+				{
+					return EShipDistance::SH_LOCAL;
+				}
+			}
+		}
+		// This ship's distance group will not change
+		return _ShipDistanceGroup;
+	}
+	return EShipDistance::SH_EXTERNAL;
+}
+
+void UShipObject::GetPreciseLocation(FInt64Vector& Out) const
+{
+	Out = _PreciseShipLocation;
+}
+
+void UShipObject::GetShipIndex(int32& Out) const
+{
+	Out = _ShipIndex;
+}
+
+void UShipObject::GetImpreciseLocation(FVector& Out) const
+{
+	Out = _LongShipLocation;
+}
+
+void UShipObject::GetShipType(FString& Out) const
+{
+	Out = _ShipType;
+}
+
+void UShipObject::GetShipSystem(FName& Out) const
+{
+	Out = _System;
+}
+
+FString UShipObject::GetDisplayDistanceTo(const FInt64Vector& From) const
 {
 	/*Maybe a good idea*/
 	//UpdateFarLocation();
 
-	float Distance = FVector::Dist(GetFarLocation(), ConvertCloseToFarLocation(From));
+	float Distance = FVector::Dist(_LongShipLocation, UStaticUtilities::ConvertPreciseToImpreciseDistance(From));
 	if (Distance >= 0.01f)
 	{
 		return GetFloatAsString(Distance, 2).Append(FString(TEXT(" lm")));
 	}
 	else
 	{
-		Distance = FInt64Vector::Distance(From, GetCloseLocation());
+		Distance = FInt64Vector::Distance(From, _PreciseShipLocation);
 		if (Distance > 10000)
 		{
-			Distance /= 10000;
+			Distance /= 100000;
 			return GetFloatAsString(Distance,  2).Append(FString(TEXT(" km")));
 		}
 		else
 		{
-			Distance /= 10;
+			Distance /= 100;
 			return GetFloatAsString(Distance, 0).Append(FString(TEXT(" m")));
 		}
 	}
 }
 
-EShipDistance UShipObject::SetDistanceGroup()
-{
-	if (ShipDistanceGroup != EShipDistance::SH_PLAYER)
-	{
-		if (FVector::Dist(GetFarLocation(), ConvertCloseToFarLocation(UStaticUtilities::CurrentGlobalOffset())) >= UStaticUtilities::FarCheckDistance())
-		{
-			ShipDistanceGroup = EShipDistance::SH_FAR;
-			
-		}
-		else
-		{
-			if (FInt64Vector::IntDistance(UStaticUtilities::CurrentGlobalOffset(), GetCloseLocation()) >= UStaticUtilities::SpawnCheckDistance())
-			{
-				ShipDistanceGroup = EShipDistance::SH_NEAR;
-			}
-			else
-			{
-				ShipDistanceGroup = EShipDistance::SH_LOCAL;
-			}
-		}
-	}
-	return ShipDistanceGroup;
-}
-
-void UShipObject::GetSpawnPositionAndRotation(FVector &OutVector, FRotator &OutRotation) const
-{
-	OutVector.X = (float)(PreciseShipLocation.X - UStaticUtilities::CurrentGlobalOffset().X);
-	OutVector.Y = (float)(PreciseShipLocation.Y - UStaticUtilities::CurrentGlobalOffset().Y);
-	OutVector.Z = (float)(PreciseShipLocation.Z - UStaticUtilities::CurrentGlobalOffset().Z);
-	OutRotation = FRotator::ZeroRotator;
-	//UE_LOG(LogTemp, Warning, TEXT("OutVector: %s"), *OutVector.ToString());
-}
-
-void UShipObject::UpdateFarLocation()
-{
-	LongShipLocation.X = (PreciseShipLocation.X / 1798754748);
-	LongShipLocation.Y = (PreciseShipLocation.Y / 1798754748);
-	LongShipLocation.Z = (PreciseShipLocation.Z / 1798754748);
-	LongShipLocation /= 100.f;
-}
-
-FVector UShipObject::ConvertCloseToFarLocation(const FInt64Vector& InVector)
-{
-	FVector OutVector;
-	OutVector.X = (InVector.X / 1798754748);
-	OutVector.Y = (InVector.Y / 1798754748);
-	OutVector.Z = (InVector.Z / 1798754748);
-	OutVector /= 100.f;
-	return OutVector;
-}
-
-FString UShipObject::GetFloatAsString(float Number, int Precision)
+FString UShipObject::GetFloatAsString(float Number, const int32 Precision) const
 {
 	float Rounded = roundf(Number);
 	if (FMath::Abs(Number - Rounded) < FMath::Pow(10, -1 * Precision))
@@ -120,4 +162,9 @@ FString UShipObject::GetFloatAsString(float Number, int Precision)
 	NumberFormat.MinimumFractionalDigits = Precision;
 	NumberFormat.MaximumFractionalDigits = Precision;
 	return FText::AsNumber(Number, &NumberFormat).ToString();
+}
+
+void UShipObject::TeleportToPreciseLocation(const FInt64Vector& Destination)
+{
+	_PreciseShipLocation = Destination;
 }

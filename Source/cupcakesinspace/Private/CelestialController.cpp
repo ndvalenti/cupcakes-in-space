@@ -1,31 +1,62 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "CelestialController.h"
+#include "GameStateManager.h"
+#include "cmath"
+
+#include "EngineGlobals.h"
+#include "Engine/Engine.h"
 
 
-// Sets default values
 ACelestialController::ACelestialController()
 {
- 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
+	bAllowTickBeforeBeginPlay = false;
 
 }
 
-// Called when the game starts or when spawned
 void ACelestialController::BeginPlay()
 {
 	Super::BeginPlay();
 	SetTickGroup(TG_PostUpdateWork);
-	PlanetLocation = GetActorLocation();
-	CurrCamera = UGameplayStatics::GetPlayerCameraManager(GetWorld(), 0);
+	//AbstractLocation = GetActorLocation();
+	CurrentCamera = UGameplayStatics::GetPlayerCameraManager(GetWorld(), 0);
+
+	GetWorld()->GetGameState<AGameStateManager>()->Celestials.Emplace(this);
 }
 
-// Called every frame
 void ACelestialController::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-	if (CurrCamera) {
-		SetActorLocation(CurrCamera->GetActorLocation() + PlanetLocation);
+	/*
+	int32 PlayerIndex = GetWorld()->GetGameState<AGameStateManager>()->PlayerShipIndex;
+	FInt64Vector PlayerLoc = GetWorld()->GetGameState<AGameStateManager>()->GetPlayerShipPreciseLocation();
+	*/
+	if (CurrentCamera)
+	{
+		UpdateScaleRatio();
+
+		SetActorLocation(CurrentCamera->GetActorLocation() + AbstractLocation);
+		//SetActorLocation(AbstractLocation);
 	}
 }
 
+void ACelestialController::UpdateScaleRatio()
+{
+	//int64 Distance = FInt64Vector::Distance(UStaticUtilities::CurrentGlobalOffset(), TrueLocation);
+	FInt64Vector DistanceVector = TrueLocation - UStaticUtilities::CurrentGlobalOffset();
+	double Distance = DistanceVector.Magnitude();
+	ScaleRatio = (log(Distance) / Distance) * 2500.f; /*Ew magic number*/
+	FVector NewAbstract(DistanceVector.X * ScaleRatio, DistanceVector.Y * ScaleRatio, DistanceVector.Z * ScaleRatio);
+	AbstractLocation = NewAbstract;
+	NewAbstract = FVector::FVector((double)Size * ScaleRatio);
+	if (NewAbstract.ContainsNaN())
+	{
+		NewAbstract = FVector::FVector(0, 0, 0);
+	}
+	this->SetActorScale3D(NewAbstract);
+	//AbstractLocation.X = TrueLocation.X * ScaleRatio;
+	//AbstractLocation.Y = TrueLocation.Y * ScaleRatio;
+	//AbstractLocation.Z = TrueLocation.Z * ScaleRatio;
+
+}

@@ -5,9 +5,11 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 
+#include "EngineUtils.h"
 #include "Kismet/GameplayStatics.h"
 
 #include "SkyboxController.generated.h"
+
 
 UCLASS()
 class CUPCAKESINSPACE_API ASkyboxController : public AActor
@@ -15,22 +17,14 @@ class CUPCAKESINSPACE_API ASkyboxController : public AActor
 	GENERATED_BODY()
 	
 public:	
-	// Sets default values for this actor's properties
 	ASkyboxController();
 
 protected:
-	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
-	FVector PreviousDesiredLoc;
 
-public:	
-	// Called every frame
+public:
+	UPROPERTY(VisibleAnywhere)
+	TLazyObjectPtr<AActor> CurrentCamera;
+
 	virtual void Tick(float DeltaTime) override;
-	
-
-	UPROPERTY(EditAnywhere)
-	TLazyObjectPtr<AActor> CurrCamera;
-
-	
-	
 };

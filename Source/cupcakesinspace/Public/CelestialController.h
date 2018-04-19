@@ -5,9 +5,14 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 
+#include "EngineUtils.h"
+#include "Int64Vector.h"
+#include "StaticUtilities.h"
 #include "Kismet/GameplayStatics.h"
 
 #include "CelestialController.generated.h"
+
+//class AGameStateManager;
 
 UCLASS()
 class CUPCAKESINSPACE_API ACelestialController : public AActor
@@ -15,19 +20,29 @@ class CUPCAKESINSPACE_API ACelestialController : public AActor
 	GENERATED_BODY()
 	
 public:	
-	// Sets default values for this actor's properties
 	ACelestialController();
 
 protected:
-	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
-	FVector PlanetLocation;
 
 public:	
-	// Called every frame
+	/*Contains the location of the celestial scaled to the global offset*/
+	UPROPERTY(EditAnywhere, Category = Positional)
+	FInt64Vector TrueLocation;
+
+	UPROPERTY(VisibleAnywhere, Category = Informational)
+	FVector AbstractLocation;
+
+	UPROPERTY(VisibleAnywhere, Category = Informational)
+	TLazyObjectPtr<AActor> CurrentCamera;
+
+	UPROPERTY(VisibleAnywhere, Category = Informational)
+	double ScaleRatio;
+
+	UPROPERTY(EditAnywhere, Category = Positional)
+	int64 Size;
+
 	virtual void Tick(float DeltaTime) override;
 
-	UPROPERTY(EditAnywhere)
-	TLazyObjectPtr<AActor> CurrCamera;
-	
+	void UpdateScaleRatio();
 };
